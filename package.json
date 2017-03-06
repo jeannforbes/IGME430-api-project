@@ -1,0 +1,26 @@
+{
+  "name": "api-project-photote",
+  "version": "1.0.0",
+  "description": "A tote bag for your photo needs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeannforbes/IGME430-api-project.git"
+  },
+  "author": "Jeannette Forbes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jeannforbes/IGME430-api-project/issues"
+  },
+  "homepage": "https://github.com/jeannforbes/IGME430-api-project#readme",
+  "devDependencies": {
+    "eslint": "^3.17.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0"
+  }
+}
