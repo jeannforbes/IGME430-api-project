@@ -11,7 +11,7 @@
 </head>
 <body>
   <section id="top">
-    <h3>4um - your one-stop shop for useless comments!</h3>
+    <h3>AnonyMouse 4um - your one-stop shop for inane debates!</h3>
     <form id="nameForm" action="/addUser" method="post"">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
@@ -52,12 +52,15 @@
         for(key in obj.users){
           const comment = document.createElement('div');
           const p = document.createElement('p');
-          const header = document.createElement('h3')
+          const header = document.createElement('h3');
+          const ratImg = document.createElement('img');
+          ratImg.src = "https://cdn4.iconfinder.com/data/icons/free-retina-icon-set/60/Rat.png";
           comment.appendChild(header);
           comment.appendChild(p);
           comment.className = "comment";
-          p.innerHTML = obj.users[key].age
-          header.innerHTML = obj.users[key].name;
+          p.innerHTML += obj.users[key].age;
+          header.innerHTML += obj.users[key].name+" says...";
+          content.appendChild(ratImg);
           content.appendChild(comment);
         }
       }

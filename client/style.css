@@ -3,13 +3,21 @@
 	visibility: hidden;
 }
 .comment{
-	border: solid 1px black;
 	margin: 5px;
+	position: relative;
+	float: right;
+	width: 90%;
+}
+.ratImg{
+	position: relative;
+	float: left;
 }
 .comment h3{
-	background-color: #DDD;
+	border: solid 1px #AAA;
 	margin: 0;
 	padding: 0;
+
+	width: 50%;
 }
 label{
 	display: block;
@@ -17,4 +25,7 @@ label{
 #ageField{
 	width: 100px;
 	height: 50px;
+
+	position: relative;
+	float: left;
 }
