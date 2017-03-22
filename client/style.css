@@ -1,31 +1,24 @@
-
-#userForm{
-	visibility: hidden;
+body{
+	background: black;
+	color: yellow;
+	font: 12px;
 }
-.comment{
-	margin: 5px;
+#header{
+	font: 20px;
+}
+#content{
 	position: relative;
 	float: right;
-	width: 90%;
+	width: 45%;
+	height: 100%;
 }
-.ratImg{
+.comment{
 	position: relative;
 	float: left;
+	width: 100%;
 }
-.comment h3{
-	border: solid 1px #AAA;
-	margin: 0;
-	padding: 0;
-
-	width: 50%;
-}
-label{
-	display: block;
-}
-#ageField{
-	width: 100px;
-	height: 50px;
-
+#commentForm{
 	position: relative;
 	float: left;
+	width: 45%;
 }

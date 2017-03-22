@@ -11,36 +11,37 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
-  if (parsedUrl.pathname === '/addUser') {
-    const res = response;
+  const res = response;
 
-    // Prepare for assimilation
-    const body = [];
+  // Prepare for assimilation
+  const body = [];
 
-    // Throw a bad request on stream crapout
-    request.on('error', (err) => {
-      console.dir(err);
-      res.statusCode = 400;
-      res.end();
-    });
+  // Throw a bad request on stream crapout
+  request.on('error', (err) => {
+    console.dir(err);
+    res.statusCode = 400;
+    res.end();
+  });
 
-    // Add each byte of data to byte array
-    request.on('data', (chunk) => {
-      body.push(chunk);
-    });
+  // Add each byte of data to byte array
+  request.on('data', (chunk) => {
+    body.push(chunk);
+  });
 
-    // on end of upload stream.
-    request.on('end', () => {
-      // combine our byte array and convert to string
-      const bodyString = Buffer.concat(body).toString();
+  // on end of upload stream.
+  request.on('end', () => {
+    // combine our byte array and convert to string
+    const bodyString = Buffer.concat(body).toString();
 
-      // Parse the string into an object by field name
-      const bodyParams = query.parse(bodyString);
+    // Parse the string into an object by field name
+    const bodyParams = query.parse(bodyString);
 
-      // pass to our addUser function
+    // pass to our addUser function
+    if(parsedUrl.pathname === '/addUser')
       jsonHandler.addUser(request, res, bodyParams);
-    });
-  }
+    if(parsedUrl.pathname === '/addComment')
+      jsonHandler.addComment(request, res, bodyParams);
+  });
 };
 
 // handle GET requests
@@ -48,10 +49,14 @@ const handleGet = (request, response, parsedUrl) => {
   // route to correct method based on url
   if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
+  } else if (parsedUrl.pathname === '/login'){
+    jsonHandler.validateUser(request, response);
   } else if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
   } else if (parsedUrl.pathname === '/getUsers') {
     jsonHandler.getUsers(request, response);
+  } else if (parsedUrl.pathname === '/getComments') {
+    jsonHandler.getComments(request, response);
   } else {
     jsonHandler.notFound(request, response);
   }

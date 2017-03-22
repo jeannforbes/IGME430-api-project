@@ -10,29 +10,18 @@
   </script>
 </head>
 <body>
-  <section id="top">
-    <h3>AnonyMouse 4um - your one-stop shop for inane debates!</h3>
-    <form id="nameForm" action="/addUser" method="post"">
-      <label for="name">Name: </label>
-      <input id="nameField" type="text" name="name" />
-      <label for="age">Comment: </label>
-      <input id="ageField"/>
+  <section id="header">
+    <h3>Chatter</h3>
+  </section>
+    <div id="identity">
+      Logged in as [PLACEHOLDER]
+    </div>
+    <form id="commentForm" action="/comment" method="post">
+      <label for="comment"> Speak your mind! </label>
+      <input id="commentField"/>
       <input type="submit" value="Post" />
     </form>
-    <form id="userForm" action="/getUsers" method="get">
-      <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
-        <option value='/notReal'>/notReal</option>
-      </select>
-      <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
-      </select>
-      <input type="submit" value="Get User" />
-    </form>
-  </section>
-  <section id="content">
-  </section>
+  <section id="content"></section>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
@@ -40,28 +29,30 @@
   <script type="text/babel"></script><script>
 
     const parseJSON = (xhr, content) => {
-      console.log(xhr.response);
+      //console.log(xhr.response);
       if(!xhr.response) return;
       //parse response (obj will be empty in a 204 updated)
       const obj = JSON.parse(xhr.response);
+      const forum = document.querySelector("#content");
 
-      if(obj.users) {
+      if(obj.comments) {
       
         content.innerHTML = "";
 
-        for(key in obj.users){
-          const comment = document.createElement('div');
-          const p = document.createElement('p');
-          const header = document.createElement('h3');
-          const ratImg = document.createElement('img');
-          ratImg.src = "https://cdn4.iconfinder.com/data/icons/free-retina-icon-set/60/Rat.png";
-          comment.appendChild(header);
-          comment.appendChild(p);
+        for(var i=obj.comments.all.length-1; i>=0; i--){
+          var comment = document.createElement("div");
+          var username = document.createElement("h3");
+          var message = document.createElement("p");
+
           comment.className = "comment";
-          p.innerHTML += obj.users[key].age;
-          header.innerHTML += obj.users[key].name+" says...";
-          content.appendChild(ratImg);
-          content.appendChild(comment);
+
+          username.innerHTML = obj.comments.all[i].user;
+          message.innerHTML = obj.comments.all[i].message;
+
+          comment.appendChild(username);
+          comment.appendChild(message);
+          forum.appendChild(comment);
+
         }
       }
     };
@@ -97,20 +88,15 @@
     };
 
     //function to send our post request
-    const sendPost = (e, nameForm) => {
-      //grab the forms action (url to go to)
-      //and method (HTTP method - POST in this case)
-      const nameAction = nameForm.getAttribute('action');
-      const nameMethod = nameForm.getAttribute('method');
+    const sendPost = (e, form) => {
       
       //grab the form's name and age fields so we can check user input
-      const nameField = nameForm.querySelector('#nameField');
-      const ageField = nameForm.querySelector('#ageField');
+      const messageField = form.querySelector('#commentField');
       
       //create a new Ajax request (remember this is asynchronous)
       const xhr = new XMLHttpRequest();
       //set the method (POST) and url (action field from form)
-      xhr.open(nameMethod, nameAction);
+      xhr.open('post', 'addComment');
       
       //set our request type to x-www-form-urlencoded
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -119,9 +105,11 @@
       
       //set our function to handle the response
       xhr.onload = () => handleResponse(xhr);
+
+      const currentUser = "test";
       
       //build our x-www-form-urlencoded format.
-      const formData = `name=${nameField.value}&age=${ageField.value}`;
+      const formData = `user=${currentUser}&message=${messageField.value}`;
       
       //send our request with the data
       xhr.send(formData);
@@ -129,23 +117,25 @@
       //prevent the browser's default action (to send the form on its own)
       e.preventDefault();
 
+      //Clear out the old message
+      messageField.value = "";
+
       //return false to prevent the browser from trying to change page
       return false;
     };
 
     const init = () => {
       //grab form
-      const nameForm = document.querySelector('#nameForm');
-      const userForm = document.querySelector('#userForm');
+      const commentForm = document.querySelector('#commentForm');
       
       //create handler
-      const addUser = (e) => sendPost(e, nameForm);
+      const addComment = (e) => sendPost(e, commentForm);
       
       //attach submit event (for clicking submit or hitting enter)
-      nameForm.addEventListener('submit', addUser);
+      commentForm.addEventListener('submit', addComment);
 
       //attach submit event for getting users
-      nameForm.addEventListener("submit", function(e){
+      commentForm.addEventListener("submit", function(e){
 
         getStuff(e);
       });
@@ -155,8 +145,8 @@
 
     const getStuff = (e) => {
 
-        const method = userForm.querySelector('#methodSelect').value.toUpperCase();
-        const url = userForm.querySelector('#urlField').value;
+        const method = 'get';
+        const url = 'getComments';
 
         console.log(method+", "+url);
 
