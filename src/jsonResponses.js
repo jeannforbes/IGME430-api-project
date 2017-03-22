@@ -137,7 +137,7 @@ const addComment = (request, response, body) => {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
-  if (!body.user || body.user=="") {
+  if (!body.user || body.user==="") {
     body.user = "Anonymous";
   }
 
@@ -195,7 +195,7 @@ const changeColor = (request, response, body) => {
 
   // change this user's comment color
   for(var i=0; i<comments.all.length; i++){
-    if(comments.all[i].user == body.user)
+    if(comments.all[i].user === body.user)
       comments.all[i].color = body.color;
   }
 
@@ -220,7 +220,7 @@ const changeIcon = (request, response, body) => {
 
   // change this user's comment color
   for(var i=0; i<comments.all.length; i++){
-    if(comments.all[i].user == body.user)
+    if(comments.all[i].user === body.user)
       comments.all[i].icon = body.icon;
   }
   return respondJSONMeta(request, response, responseCode);

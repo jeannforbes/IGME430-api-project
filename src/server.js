@@ -70,7 +70,7 @@ const handleGet = (request, response, parsedUrl) => {
 };
 
 //WARNING: We should never get a HEAD request from the server!
-const handleHead = (request, response, parsedUrl) => {
+const handleHead = (request, response) => {
   jsonHandler.notFound(request, response);
 }
 
