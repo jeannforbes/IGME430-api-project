@@ -48,7 +48,7 @@ const handlePost = (request, response, parsedUrl) => {
 const handleGet = (request, response, parsedUrl) => {
   // route to correct method based on url
   if (parsedUrl.pathname === '/') {
-    htmlHandler.getIndex(request, response);
+    htmlHandler.getLogin(request, response);
   } else if (parsedUrl.pathname === '/login'){
     jsonHandler.validateUser(request, response);
   } else if (parsedUrl.pathname === '/style.css') {
