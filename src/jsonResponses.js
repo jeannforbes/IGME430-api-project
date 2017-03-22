@@ -7,6 +7,13 @@ const comments = {
   all:[],
 };
 
+const defaultIcons = [
+"https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-grin-128.png",
+"https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-glasses-128.png",
+"https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-wink-128.png",
+"https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-devilish-128.png",
+"https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-angel-128.png",];
+
 let etag = crypto.createHash('sha1').update(JSON.stringify(users));
 let digest = etag.digest('hex');
 
@@ -77,6 +84,7 @@ const addUser = (request, response, body) => {
   // add or update fields for this user name
   users[body.user].user = body.user;
   users[body.user].pass = body.pass;
+  users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length)];
 
   // if response is created, then set our created message
   // and sent response with a message
@@ -97,20 +105,20 @@ const notFound = (request, response) => {
 };
 
 const validateUser = (request, response) => {
-  if(!request.url.includes("user=") || !request.url.includes("pass="))
-    return htmlHandler.getLogin(request, response);
+  if(!request.url.includes("user=") || !request.url.includes("pass=")){
+    htmlHandler.getInvalidLogin(request, response);
+    return;
+  }
   const user = request.url.split("=")[1].split("&")[0];
   const pass = request.url.split("=")[2];
 
-  console.log(users);
   if(users[user]){
     if(users[user].user == user && users[user].pass == pass)
-      console.log("Logging in user "+user);
       htmlHandler.getIndex(request, response);
-  } else{
-    console.log("Invalid login for "+user);
-    htmlHandler.getLogin(request, response);
+      return;
   }
+  htmlHandler.getInvalidLogin(request, response);
+  return;
 };
 
 const addComment = (request, response, body) => {
@@ -138,6 +146,8 @@ const addComment = (request, response, body) => {
   // add or update fields for this user name
   newComment.user = body.user;
   newComment.message = body.message;
+  newComment.color = body.color;
+  newComment.icon = users[body.user].icon;
 
   comments.all.push(newComment);
 
@@ -159,8 +169,51 @@ const getComments = (request, response) => {
   if (request.headers['if-none-match'] === digest) {
     return respondJSON(request, response, 304, responseJSON);
   }
+
   return respondJSON(request, response, 200, responseJSON);
 };
+
+const changeColor = (request, response, body) => {
+  etag = crypto.createHash('sha1').update(JSON.stringify(comments));
+  digest = etag.digest('hex');
+
+  if (!body.color || !body.user) {
+    return respondJSONMeta(request, response, 400);
+  }
+
+  // default status code to 201 created
+  let responseCode = 201;
+
+  // change this user's comment color
+  for(var i=0; i<comments.all.length; i++){
+    if(comments.all[i].user == body.user)
+      comments.all[i].color = body.color;
+  }
+
+  return respondJSONMeta(request, response, responseCode);
+};
+
+const changeIcon = (request, response, body) => {
+  etag = crypto.createHash('sha1').update(JSON.stringify(comments));
+  digest = etag.digest('hex');
+
+  if (!body.icon || !body.user) {
+    return respondJSONMeta(request, response, 400);
+  }
+
+  // default status code to 201 created
+  let responseCode = 201;
+
+  users[body.user].icon = body.icon;
+
+  // change this user's comment color
+  for(var i=0; i<comments.all.length; i++){
+    if(comments.all[i].user == body.user)
+      comments.all[i].icon = body.icon;
+  }
+
+  return respondJSONMeta(request, response, responseCode);
+}
 
 // public exports
 module.exports = {
@@ -170,4 +223,6 @@ module.exports = {
   validateUser,
   addComment,
   getComments,
+  changeColor,
+  changeIcon,
 };

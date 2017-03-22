@@ -4,7 +4,7 @@
   <title>Chatter - Login</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   <link href="https://fonts.googleapis.com/css?family=Bitter|Dosis" rel="stylesheet">
-
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
@@ -20,7 +20,7 @@
     <input id="passField" type="text" name="pass" />
     <input type="submit" value="Login" />
   </form>
-  <p id="userAlert"></p>
+  <p id="userAlert">Invalid login.  Try again.</p>
   <br/>
   <h4>New User?</h4>
   <form id="newUserForm" action="/addUser" method="post">
@@ -147,6 +147,7 @@
       //attach submit event (for clicking submit or hitting enter)
       addUserForm.addEventListener('submit', addUser);
 
+      //getStuff();
     };
 
     const validateLogin = (e, loginForm) => {

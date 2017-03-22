@@ -41,6 +41,10 @@ const handlePost = (request, response, parsedUrl) => {
       jsonHandler.addUser(request, res, bodyParams);
     if(parsedUrl.pathname === '/addComment')
       jsonHandler.addComment(request, res, bodyParams);
+    if(parsedUrl.pathname === '/changeColor')
+      jsonHandler.changeColor(request, res, bodyParams);
+    if(parsedUrl.pathname === '/changeIcon')
+      jsonHandler.changeIcon(request, res, bodyParams);
   });
 };
 
