@@ -84,7 +84,7 @@ const addUser = (request, response, body) => {
     // Adds a user
     users[body.user].user = body.user;
     users[body.user].pass = body.pass;
-    users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length)];
+    users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length, radix)];
   }
 
   // Handles 201 response code
@@ -133,12 +133,9 @@ const addComment = (request, response, body) => {
     message: 'Write something first!',
   };
 
-  if (!body.message) {
+  if (!body.message || !body.user || body.user==="") {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
-  }
-  if (!body.user || body.user==="") {
-    body.user = "Anonymous";
   }
 
   // default status code to 201 created
