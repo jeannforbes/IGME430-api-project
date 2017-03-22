@@ -1,12 +1,13 @@
 const htmlHandler = require('./htmlResponses.js');
-
 const crypto = require('crypto');
 
+//The users!  Woohoo!
 const users = {};
 const comments = {
   all:[],
 };
 
+//Just a bunch of new user icons from the Tango Icon Library
 const defaultIcons = [
 "https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-grin-128.png",
 "https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-glasses-128.png",
@@ -14,11 +15,11 @@ const defaultIcons = [
 "https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-devilish-128.png",
 "https://cdn3.iconfinder.com/data/icons/tango-icon-library/48/face-angel-128.png",];
 
+//How else will we know if something is new?
 let etag = crypto.createHash('sha1').update(JSON.stringify(users));
 let digest = etag.digest('hex');
 
-// function to respond with a json object
-// takes request, response, status code and object to send
+// Responds with a JSON object
 const respondJSON = (request, response, status, object) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -30,8 +31,7 @@ const respondJSON = (request, response, status, object) => {
   response.end();
 };
 
-// function to respond without json body
-// takes request, response and status code
+// Responds without the JSON body
 const respondJSONMeta = (request, response, status) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -42,19 +42,20 @@ const respondJSONMeta = (request, response, status) => {
   response.end();
 };
 
-// return user object as JSON
+// Returns users
 const getUsers = (request, response) => {
   const responseJSON = {
     users,
   };
 
+  // Handle response if content not modified
   if (request.headers['if-none-match'] === digest) {
     return respondJSON(request, response, 304, responseJSON);
   }
   return respondJSON(request, response, 200, responseJSON);
 };
 
-// function to add a user from a POST body
+// Adds a user from a POST request
 const addUser = (request, response, body) => {
   // default json message
   const responseJSON = {
@@ -66,28 +67,27 @@ const addUser = (request, response, body) => {
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  // default status code to 201 created
+  // Defaults to 201
   let responseCode = 201;
 
-  // if that user's name already exists in our object
-  // then switch to a 204 updated status
+  // Handle 204 if user already exists
   if (users[body.user]) {
     responseCode = 204;
+    responseJSON.message = "That account already exists.";
   } else {
-    // otherwise create an object with that name
+    // Make an empty user
     users[body.user] = {};
 
     etag = crypto.createHash('sha1').update(JSON.stringify(users));
     digest = etag.digest('hex');
+
+    // Adds a user
+    users[body.user].user = body.user;
+    users[body.user].pass = body.pass;
+    users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length)];
   }
 
-  // add or update fields for this user name
-  users[body.user].user = body.user;
-  users[body.user].pass = body.pass;
-  users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length)];
-
-  // if response is created, then set our created message
-  // and sent response with a message
+  // Handles 201 response code
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
     return respondJSON(request, response, responseCode, responseJSON);
@@ -96,6 +96,7 @@ const addUser = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+// Handles an infinite number of potential nonexistent requests.
 const notFound = (request, response) => {
   const responseJSON = {
     id: 'notFound',
@@ -104,6 +105,7 @@ const notFound = (request, response) => {
   return respondJSON(request, response, 404, responseJSON);
 };
 
+// Makes sure a user is valid before letting them login
 const validateUser = (request, response) => {
   if(!request.url.includes("user=") || !request.url.includes("pass=")){
     htmlHandler.getInvalidLogin(request, response);
@@ -113,14 +115,18 @@ const validateUser = (request, response) => {
   const pass = request.url.split("=")[2];
 
   if(users[user]){
-    if(users[user].user == user && users[user].pass == pass)
+    console.log("user found");
+    if(users[user].user === user && users[user].pass === pass){
+      console.log(user+ ", "+pass);
       htmlHandler.getIndex(request, response);
       return;
+    }
   }
   htmlHandler.getInvalidLogin(request, response);
   return;
 };
 
+// Adds a new comment by a user
 const addComment = (request, response, body) => {
   // default json message
   const responseJSON = {
@@ -151,8 +157,7 @@ const addComment = (request, response, body) => {
 
   comments.all.push(newComment);
 
-  // if response is created, then set our created message
-  // and sent response with a message
+  //Handle 201 response code
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
     return respondJSON(request, response, responseCode, responseJSON);
@@ -161,6 +166,7 @@ const addComment = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+// Gets all the stored comments for the client
 const getComments = (request, response) => {
   const responseJSON = {
     comments,
@@ -173,7 +179,10 @@ const getComments = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
+// Changes the user's comment color and updates their previous comments
 const changeColor = (request, response, body) => {
+  let responseCode = 500;
+
   etag = crypto.createHash('sha1').update(JSON.stringify(comments));
   digest = etag.digest('hex');
 
@@ -181,8 +190,8 @@ const changeColor = (request, response, body) => {
     return respondJSONMeta(request, response, 400);
   }
 
-  // default status code to 201 created
-  let responseCode = 201;
+  // We can relax about that 500 error
+  responseCode = 201;
 
   // change this user's comment color
   for(var i=0; i<comments.all.length; i++){
@@ -193,7 +202,10 @@ const changeColor = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+// Changes the user's icon and updates their previous comments
 const changeIcon = (request, response, body) => {
+  let responseCode = 500;
+
   etag = crypto.createHash('sha1').update(JSON.stringify(comments));
   digest = etag.digest('hex');
 
@@ -201,8 +213,8 @@ const changeIcon = (request, response, body) => {
     return respondJSONMeta(request, response, 400);
   }
 
-  // default status code to 201 created
-  let responseCode = 201;
+  // We can relax - there's no 500 error on the horizon
+  responseCode = 201;
 
   users[body.user].icon = body.icon;
 
@@ -211,7 +223,6 @@ const changeIcon = (request, response, body) => {
     if(comments.all[i].user == body.user)
       comments.all[i].icon = body.icon;
   }
-
   return respondJSONMeta(request, response, responseCode);
 }
 

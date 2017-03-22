@@ -1,9 +1,14 @@
-const http = require('http'); // pull in http module
-// url module for parsing url string
+/*
+** Framework code courtesy of Cody Van Der Mark
+** All the rest was coded by Jeannette Forbes
+*/
+
+//Take in our modules
+const http = require('http');
 const url = require('url');
-// querystring module for parsing querystrings from url
 const query = require('querystring');
-// pull in our custom files
+
+//Take in our files
 const htmlHandler = require('./htmlResponses.js');
 const jsonHandler = require('./jsonResponses.js');
 
@@ -12,8 +17,6 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
   const res = response;
-
-  // Prepare for assimilation
   const body = [];
 
   // Throw a bad request on stream crapout
@@ -30,13 +33,11 @@ const handlePost = (request, response, parsedUrl) => {
 
   // on end of upload stream.
   request.on('end', () => {
-    // combine our byte array and convert to string
+    //Parse the request
     const bodyString = Buffer.concat(body).toString();
-
-    // Parse the string into an object by field name
     const bodyParams = query.parse(bodyString);
 
-    // pass to our addUser function
+    //What do we do now?
     if(parsedUrl.pathname === '/addUser')
       jsonHandler.addUser(request, res, bodyParams);
     if(parsedUrl.pathname === '/addComment')
@@ -50,7 +51,8 @@ const handlePost = (request, response, parsedUrl) => {
 
 // handle GET requests
 const handleGet = (request, response, parsedUrl) => {
-  // route to correct method based on url
+
+  //What do we do with this request?
   if (parsedUrl.pathname === '/') {
     htmlHandler.getLogin(request, response);
   } else if (parsedUrl.pathname === '/login'){
@@ -64,22 +66,28 @@ const handleGet = (request, response, parsedUrl) => {
   } else {
     jsonHandler.notFound(request, response);
   }
+
 };
 
+//WARNING: We should never get a HEAD request from the server!
+const handleHead = (request, response, parsedUrl) => {
+  jsonHandler.notFound(request, response);
+}
+
+//What kind of request is this, my man?
 const onRequest = (request, response) => {
-  // parse url into individual parts
-  // returns an object of url parts by name
   const parsedUrl = url.parse(request.url);
 
-  // check if method was POST, otherwise assume GET
-  // for the sake of this example
   if (request.method === 'POST') {
     handlePost(request, response, parsedUrl);
-  } else {
+  } else if(request.method === 'GET'){
     handleGet(request, response, parsedUrl);
+  } else{
+    handleHead(request, response, parsedUrl);
   }
 };
 
+//Make the thing
 http.createServer(onRequest).listen(port);
 
 console.log(`Listening on 127.0.0.1: ${port}`);
