@@ -84,7 +84,7 @@ const addUser = (request, response, body) => {
     // Adds a user
     users[body.user].user = body.user;
     users[body.user].pass = body.pass;
-    users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length, radix)];
+    users[body.user].icon = defaultIcons[parseInt(Math.random()*defaultIcons.length, 10)];
   }
 
   // Handles 201 response code
